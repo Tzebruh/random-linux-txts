@@ -1,0 +1,90 @@
+packages for building kernel:
+- git
+- make
+- gcc
+- libncurses-dev
+- flex
+- bison
+- bc
+- libelf-dev
+- libssl-dev
+
+packages for setting up initramfs:
+- busybox (just binary not package)
+- vim
+
+$ git clone --depth 1 https://github.com/torvalds/linux.git
+if using existing linux source directory, git pull origin master
+$ cd linux
+$ make menuconfig
+
+set your config
+for efi: framebuffer needs to be enabled to get console output on the screen
+enable these settings:
+Device Drivers > Graphics support > Frame buffer Devices > Support for frame buffer device drivers
+Device Drivers > Graphics support > Frame buffer Devices > Support for frame buffer device drivers > EFI-based Framebuffer Support
+Device Drivers > Graphics support > Console display driver support > Framebuffer Console support
+
+$ make -j 8
+kernel will be in arch/x86/boot
+
+$ cd ..
+$ mkdir initramfs
+$ cd initramfs
+$ mkdir bin
+$ cp <busybox> ./bin/busybox
+$ ./bin/busybox --install ./bin/
+$ vim init
+
+content:
+```
+#!/bin/sh
+
+mkdir /proc /sys
+
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+
+sh
+poweroff -f
+```
+
+$ chmod +x init
+
+packages for packaging initramfs:
+- cpio
+
+$ find . | cpio -o -H newc > ../init.cpio
+$ cd ..
+
+test:
+$ qemu-system-x64 -kernel bzImage -initrd init.cpio
+for quiet: -append "quiet"
+for debugging: -append "console=ttyS0 debug"
+
+packages for bootloader + efi iso:
+- grub
+- xorriso (if it's not already installed)
+- mtools
+- efibootmgr (maybe idk)
+
+$ mkdir -p iso_root/boot
+$ cp bzImage init.cpio iso_root/boot/
+$ mkdir iso_root/boot/grub
+$ vim iso_root/boot/grub/grub.cfg
+
+content:
+```
+set timeout=5
+set default=0
+
+menuentry "Linuxbuild" {
+	linux /boot/bzImage quiet // kernel params go here
+	initrd /boot/init.cpio
+}
+```
+
+$ grub-mkrescue -o boot_uefi.iso iso_root
+
+boot_uefi.iso is the final iso file

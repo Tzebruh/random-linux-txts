@@ -1,0 +1,21 @@
+check support:
+$ lscpu | grep Virtualization
+$ lsmod | grep kvm
+
+add modules if needed:
+$ sudo modprobe kvm_intel	# Intel
+$ sudo modprobe kvm_amd		# AMD
+
+install packages:
+$ sudo pacman -S qemu-full virt-manager virt-viewer dnsmasq vde2 bridge-utils openbsd-netcat
+
+enable libvirtd:
+$ sudo systemctl enable --now libvirtd
+
+add user to libvirt:
+$ sudo usermod -aG libvirt $(whoami)
+
+done, start virt-manager from wofi or cli
+
+also: make sure nat network autostarts:
+$ sudo virsh net-autostart default
