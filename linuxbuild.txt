@@ -95,9 +95,9 @@ check adapter name:
 replace eth0 in following commands with adapter name
 # ip link set eth0 up
 # ip addr add x.x.x.x/24 dev eth0
-make it in the same subnet of the host network, virtualbox uses 10.0.x.x
+make it in the same subnet of the host network, virtualbox uses 10.0.2.x, qemu uses 192.168.122.x
 # ip route add default via x.x.x.x
-use your network's gateway (router) address, virtualbox uses 10.0.2.2
+use your network's gateway (router) address, virtualbox uses 10.0.2.2, qemu uses 192.168.122.1
 # mkdir /etc
 # echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
