@@ -1,0 +1,25 @@
+first, set up a root fs for the container. the alpine minirootfs from their website is good and will be the example
+
+setup root fs:
+$ mkdir container-root
+$ tar -xzf /path/to/alpine-minirootfs-x.yy.z-arch.tar.gz --directory container-root
+
+isolate namespaces:
+$ unshare -muinprf bash
+
+make root fs into a mount point:
+$ mount --bind container_root/ container_root/
+$ cd container_root/
+note: if you're already in container_root, still run `cd .` because pivot_root doesn't seem to understand that '.' is a mount point if you don't cd to it, i guess it refreshes bash's understanding of . or something, i don't know. this note is the whole reason i made this txt.
+
+pivot root to the root fs:
+$ mkdir old_root
+$ pivot_root . old_root/
+$ cd /
+
+switch to busybox sh:
+$ exec /bin/sh
+$ export PATH=$PATH:/bin:/sbin
+
+unmount old root:
+$ umount -l old_root/
