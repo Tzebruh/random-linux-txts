@@ -17,9 +17,26 @@ $ mkdir old_root
 $ pivot_root . old_root/
 $ cd /
 
-switch to busybox sh:
-$ exec /bin/sh
-$ export PATH=$PATH:/bin:/sbin
+if you need to mount any filesystems like proc or read-only sys, do it right here as you can't do it after old_root is unmounted for security reasons.
 
 unmount old root:
-$ umount -l old_root/
+$ /bin/umount -l old_root/
+
+switch to busybox sh:
+$ PATH=/bin:/sbin:/usr/bin:/usr/sbin exec /bin/sh
+
+
+
+POST TUTORIAL ADDITION: OVERLAY FS
+
+instead of making an entire rootfs for each container, you can use overlay mounts to make a changes directory for each container instead and base off the same rootfs directory for each one.
+
+in place of "setup root fs":
+$ mkdir -p rootfs changes work merged
+setup rootfs with your alpine root as earlier
+
+in place of "make root fs into a mount point":
+$ mount -t overlay overlay -o lowerdir=rootfs,upperdir=changes,workdir=work merged/
+$ cd merged/
+
+replace all further occurences of container_root with merged.
