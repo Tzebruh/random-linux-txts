@@ -4,7 +4,7 @@
 
 sudo apt update
 sudo apt install linux-headers-$(uname -r)
-sudo apt install nvidia-driver nvidia-kernel-dkms firmware-misc-nonfree
+sudo apt install nvidia-driver nvidia-kernel-open-dkms firmware-misc-nonfree nvidia-kernel-dkms-
 echo
 echo
 echo
